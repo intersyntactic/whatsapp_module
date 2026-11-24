@@ -13,3 +13,4 @@ export 'src/whatsapp_delivery.dart';
 export 'src/whatsapp_gate.dart';
 export 'src/whatsapp_ids.dart';
 export 'src/whatsapp_relay.dart';
+export 'src/whatsapp_requests.dart';
