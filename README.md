@@ -6,18 +6,37 @@ of them.
 
 ## Status
 
-The transport is moving. This package began as a relay for Meta's Cloud
-API, and that relay is here, built and tested. But the Cloud API's Groups
-API needs an Official Business Account, so the group chat this module exists
-for will instead run over a WhatsApp linked device:
-[whatsapp_linked_device](https://github.com/intersyntactic/whatsapp_linked_device),
-a Dart client of WhatsApp's multi-device protocol, where Claude's number is an
-ordinary member of real groups.
+WhatsApp reaches intersyntactic two ways, and this module serves both.
 
-What carries over to the linked device: recording each event to the logbook
-(`lib/src/record_event.dart`), dropping repeats by message id, and the reading
-the docking station will get. What stays specific to the Cloud API: the
-webhook relay, its signature check and its sign-up handshake.
+- **The Cloud API**, Meta's Business API. Messages come in through the relay
+  here. Replies go out as web requests (`lib/src/whatsapp_requests.dart`)
+  that the airlock grants and the web request driver signs with a
+  `bearer-token` sign-in. Its Groups API needs an Official Business Account,
+  so without one this route serves one-to-one chats.
+- **A linked device**,
+  [whatsapp_linked_device](https://github.com/intersyntactic/whatsapp_linked_device):
+  a Dart client of WhatsApp's multi-device protocol, where Claude's number
+  is an ordinary member of real groups. It holds its own long-lived session
+  and is its own driver, so its messages neither come through the relay
+  here nor go out through the web request driver.
+
+What both share: recording each event to the logbook
+(`lib/src/record_event.dart`), dropping repeats by message id, and the
+translator the docking station will get (`WhatsAppEventTranslator`, still to
+come, against `is_docking_station_api` 0.4.0).
+
+## Sending through the Cloud API
+
+`whatsappTextRequest` describes one text message as a `ProposedRequest`; it
+sends nothing. A trajectory's rule grants it under
+`whatsappSendPrefix(<phone number id>)`, which is `/v27.0/<id>/`, and the
+sign-in's `pathPrefixes` pin the token to the same prefix. The token can send
+from every number on the business account, and the pin is what holds it to
+this one. The prefix does not cover `/v27.0/<id>` itself, where the number's
+webhook is set.
+
+Text over Meta's 4,096-character limit is split with `WhatsAppText.split`,
+at whitespace where it can be, never through a character.
 
 ## The Cloud API relay
 

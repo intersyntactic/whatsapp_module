@@ -62,7 +62,8 @@ final class RepeatKey {
   );
 
   @override
-  bool operator ==(Object other) => other is RepeatKey && other._value == _value;
+  bool operator ==(Object other) =>
+      other is RepeatKey && other._value == _value;
 
   @override
   int get hashCode => _value.hashCode;
