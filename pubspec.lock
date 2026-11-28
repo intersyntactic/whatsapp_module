@@ -45,10 +45,10 @@ packages:
     dependency: "direct main"
     description:
       name: checked_json
-      sha256: "0538c8336bfcac44a0ee6f652205ec63bc53f05a5918ca628e4e5b005bbf6f28"
+      sha256: f945a6154f5737707c35f901dd37a7c5d3bc8a8a4dc2104f55abb68745b84a77
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0"
+    version: "0.4.0"
   cli_config:
     dependency: transitive
     description:
@@ -157,10 +157,10 @@ packages:
     dependency: transitive
     description:
       name: is_annotation_shapes
-      sha256: "620e2f3f5f78d1eeaae23b083f32160e6dec79d3959c2034b5bb4c0989e20c42"
+      sha256: e93d281630903cc78bff46315d77fddb61230114856e7efad42f223fb1dc3de5
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.0"
+    version: "0.5.0"
   is_content_id:
     dependency: transitive
     description:
@@ -173,26 +173,18 @@ packages:
     dependency: "direct main"
     description:
       name: is_conversation_vocabulary
-      sha256: b252a0b7254cf40142c353cdb68e8d926b579021c27033922f3a624204b4c27f
+      sha256: "743fa993dc7b7194a507dec64c2df3b8e025243272776b21af5c55736db3f445"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.2.0"
   is_docking_station_api:
     dependency: "direct main"
     description:
       name: is_docking_station_api
-      sha256: "1e79b9391322e40b0ae28d178bc20b059683ecbd1aa58005c68f254e66bc2ac9"
+      sha256: "6519c58dd709aec71c76c0317623bf01a188ec84fc127563c0da09163d757436"
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.0"
-  is_effects:
-    dependency: "direct main"
-    description:
-      name: is_effects
-      sha256: "95b051e592edb4e04241e89be3ac1500c0abaf58fdec8e64f40a2cbe7a7ebfc7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.14.2"
+    version: "0.11.0"
   is_logbook_format:
     dependency: "direct dev"
     description:
@@ -201,11 +193,11 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.0"
-  is_path_confinement:
+  is_outcome_vocabulary:
     dependency: transitive
     description:
-      name: is_path_confinement
-      sha256: b09d4b18aa39366b63497117be8adbd9f0cfb987a3eb2db437d053f3bc11ea45
+      name: is_outcome_vocabulary
+      sha256: ddf762c8201ec6422a12ad10fd591015d875a31a718da54279203147e2e7e199
       url: "https://pub.dev"
     source: hosted
     version: "0.1.0"
@@ -217,14 +209,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.0"
+  is_sign_in_vocabulary:
+    dependency: "direct main"
+    description:
+      name: is_sign_in_vocabulary
+      sha256: eaef104c04292032d8abd20a06232906b264b03c06270fd0ca01c47ae813b689
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
   is_web_address_vocabulary:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: is_web_address_vocabulary
       sha256: a0b58425fc7eaf98e740cdfac614201fa426594fafdf198903e961f0ee4ed6dd
       url: "https://pub.dev"
     source: hosted
     version: "0.1.2"
+  is_web_request_vocabulary:
+    dependency: "direct main"
+    description:
+      name: is_web_request_vocabulary
+      sha256: d5604782c15bbfbf647b5deffe8222e8a67b4c05aff1a0799241c7e658f7c0e1
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   lints:
     dependency: "direct dev"
     description:

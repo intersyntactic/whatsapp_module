@@ -2,14 +2,16 @@
 /// relay recorded, one item each, as a [TranslatedEvent].
 ///
 /// What is admitted so far: a text message with an author Meta names by
-/// user id, in a group or a one-to-one chat with the business number.
-/// Statuses, group changes and every other message type are
-/// [NothingToAdmit] until a reading needs them.
+/// user id, in a group or a one-to-one chat with the business number, with
+/// replies confined to that chat by [whatsappReplyEndpoint]. Statuses,
+/// group changes and every other message type are [NothingToAdmit] until a
+/// reading needs them.
 library;
 
 import 'package:is_docking_station_api/is_docking_station_api.dart';
 import 'package:is_conversation_vocabulary/is_conversation_vocabulary.dart'
     show
+        ConversationKind,
         KnownAuthor,
         Quote,
         QuotedAuthor,
@@ -20,6 +22,7 @@ import 'package:is_shapes/is_shapes.dart' show ActorId;
 
 import 'whatsapp_delivery.dart';
 import 'whatsapp_ids.dart';
+import 'whatsapp_requests.dart';
 
 /// Who wrote each message translated so far, so a reply can name who it
 /// quotes. Never changed once made: [said] gives a new one.
@@ -80,9 +83,27 @@ final class WhatsAppEventTranslator
     final author = whatsAppActor(from);
     final source = SourceMessageId.parse(m.id.value);
     final key = EventKey.parse(m.id.value);
-    final address = switch (m.group) {
-      final group? => groupAddress(group),
-      null => chatAddress(number, from),
+    final (address, kind, forTheAgent, replyTo) = switch (m.group) {
+      final group? => (
+        groupAddress(group),
+        ConversationKind.groupChat,
+        // A group delivers everyone's messages, and Meta's group webhook
+        // carries no mentions, so whether this one is for the agent can't
+        // be read from it.
+        WhetherForTheAgent.notKnown,
+        WhatsAppRecipient.group(group),
+      ),
+      null => (
+        chatAddress(number, from),
+        ConversationKind.oneToOne,
+        WhetherForTheAgent.everyMessageHereIsForTheAgent,
+        switch (WhatsAppPhoneNumber.parse(m.fromPhone ?? '')) {
+          final phone? => WhatsAppRecipient.person(phone),
+          // Someone who hides their number behind a username: Meta takes
+          // a user id as `recipient`, but no send has been seen to arrive.
+          null => null,
+        },
+      ),
     };
     if (author == null || source == null || key == null || address == null) {
       return null;
@@ -91,9 +112,12 @@ final class WhatsAppEventTranslator
       addressInExternalSystem: address,
       containingAddress: null,
       addressedTo: businessNumberActor(number),
-      // No case of ReplyEndpoint names a WhatsApp conversation yet: Meta
-      // takes every reply at one address and names the chat in the body.
-      replyEndpoint: null,
+      replyEndpoint: switch (replyTo) {
+        final to? => whatsappReplyEndpoint(from: number, to: to),
+        null => null,
+      },
+      conversationKind: kind,
+      forTheAgent: forTheAgent,
       key: key,
       node: UserSaid(
         author: author,
