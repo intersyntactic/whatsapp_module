@@ -5,19 +5,91 @@
 ///
 /// One POST can carry several entries, each several changes, each several
 /// messages or statuses. A part this can't read is left out and the rest
-/// is kept, since the body is recorded whole either way.
+/// is kept, since every part is recorded either way, cut one item to an
+/// entry by [WhatsAppDelivery.oneItemBodies].
 library;
 
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:checked_json/checked_json.dart';
 
 import 'whatsapp_ids.dart';
 
 final class WhatsAppDelivery {
-  const WhatsAppDelivery._(this.changes);
+  const WhatsAppDelivery._(this._root, this.changes);
+
+  final JsonObject _root;
 
   final List<WhatsAppChange> changes;
+
+  /// The body cut into bodies of one item each: one per message, one per
+  /// status, and one per change of any other kind, each still a webhook
+  /// body that [parse] reads. Each keeps its entry's fields and its change's
+  /// `value` fields other than `messages` and `statuses`, such as
+  /// `metadata` and `contacts`.
+  ///
+  /// The cut follows the body as sent, not what [parse] could read of it,
+  /// so an item this module can't read is recorded all the same.
+  List<Uint8List> get oneItemBodies {
+    final bodies = <Uint8List>[];
+    void add(JsonObject entry) => bodies.add(
+      utf8.encode(
+        jsonEncode(
+          _root.withFields({
+            'entry': [entry],
+          }),
+        ),
+      ),
+    );
+    for (final entry in _root.objects('entry')) {
+      // wire-ok: Meta's changes list, cut as sent.
+      if (entry.raw('changes') case final List<Object?> changes) {
+        for (final change in changes) {
+          final items = _items(change);
+          if (items.isEmpty) {
+            add(
+              entry.withFields({
+                'changes': [change],
+              }),
+            );
+          }
+          for (final item in items) {
+            add(
+              entry.withFields({
+                'changes': [item],
+              }),
+            );
+          }
+        }
+      } else {
+        add(entry);
+      }
+    }
+    return bodies;
+  }
+
+  /// One copy of [change] per message and per status it carries, holding
+  /// only that one; none for a change with neither.
+  static List<JsonObject> _items(Object? change) {
+    final c = JsonObject.parse(change);
+    final value = JsonObject.parse(c?.raw('value'));
+    if (c == null || value == null) return const [];
+    final rest = value.without(_itemLists);
+    return [
+      for (final list in _itemLists)
+        // wire-ok: Meta's item lists, cut as sent.
+        if (value.raw(list) case final List<Object?> items)
+          for (final item in items)
+            c.withFields({
+              'value': rest.withFields({
+                list: [item],
+              }),
+            }),
+    ];
+  }
+
+  static const _itemLists = ['messages', 'statuses'];
 
   /// Every message in every `messages` change, in the body's order.
   Iterable<InboundMessage> get messages => [
@@ -55,6 +127,7 @@ final class WhatsAppDelivery {
       return null;
     }
     return WhatsAppDelivery._(
+      root,
       List.unmodifiable([
         for (final entry in entries)
           for (final change in _orEmpty(() => entry.objects('changes')))

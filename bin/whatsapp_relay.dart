@@ -20,11 +20,13 @@ library;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:is_docking_station_api/is_docking_station_api.dart'
+    show RelayedEventSource;
 import 'package:is_whatsapp_module/is_whatsapp_module.dart';
 
 /// The source the relay's events are recorded under, which the module's
-/// reading names as its own.
-const _source = 'whatsapp';
+/// translator names as its own.
+final _source = RelayedEventSource.parse('whatsapp')!;
 
 Never _abort(String why) {
   stderr.writeln('abort: $why');
@@ -80,7 +82,7 @@ Future<void> main() async {
     secret: secret,
     verifyToken: verifyToken,
     phoneNumberId: phone,
-    record: (body) => recordEvent(logbookSocket, source: _source, bytes: body),
+    record: (item) => recordEvent(logbookSocket, source: _source, bytes: item),
   );
   final server = await HttpServer.bind(address, port);
   stdout.writeln(

@@ -2,8 +2,9 @@
 /// this business number.
 ///
 /// `GET` is the sign-up handshake. `POST` is a delivery: its body is read
-/// under a cap and a deadline, checked by [decideDelivery], recorded, and
-/// only then answered 200, so a 200 means "in the logbook". Nothing is done
+/// under a cap and a deadline, checked by [decideDelivery], recorded one
+/// item to an entry, and only then answered 200, so a 200 means "in the
+/// logbook". Nothing is done
 /// with a delivery here beyond recording it: the docking station reads it
 /// from the logbook.
 ///
@@ -45,11 +46,12 @@ final class WhatsAppRelay {
   /// The one business number this relay takes deliveries for.
   final PhoneNumberId phoneNumberId;
 
-  /// Records the body of each delivery taken, its bytes exactly as they
-  /// came, before Meta gets a response: in the relay, [recordEvent]. Only
-  /// [Recorded] gets a 200; anything else, or a throw, gets a 500 and the
-  /// delivery is forgotten as seen, so Meta's retry is taken.
-  final Future<RecordAnswer> Function(Uint8List body) record;
+  /// Records one item of a delivery taken, as
+  /// [WhatsAppDelivery.oneItemBodies] cuts it, before Meta gets a response:
+  /// in the relay, [recordEvent]. Only every item [Recorded] gets a 200;
+  /// anything else, or a throw, gets a 500 and the delivery is forgotten as
+  /// seen, so Meta's retry is taken.
+  final Future<RecordAnswer> Function(Uint8List item) record;
 
   final Duration bodyTimeout;
   final int maxBodyBytes;
@@ -166,11 +168,18 @@ final class WhatsAppRelay {
         for (final k in keys) {
           _markSeen(k, now);
         }
-        RecordAnswer answer;
-        try {
-          answer = await record(bytes);
-        } on Object catch (e) {
-          answer = RecordUnanswered('${e.runtimeType}');
+        final items = d.delivery.oneItemBodies;
+        RecordAnswer answer = const Recorded('-');
+        // In order, stopping at the first not recorded: Meta's retry sends
+        // the whole body again, and the docking station's keys drop the
+        // items recorded before the stop.
+        for (final item in items) {
+          try {
+            answer = await record(item);
+          } on Object catch (e) {
+            answer = RecordUnanswered('${e.runtimeType}');
+          }
+          if (answer is! Recorded) break;
         }
         final why = switch (answer) {
           Recorded() => null,
@@ -185,7 +194,10 @@ final class WhatsAppRelay {
           log('whatsapp relay: 500 $why');
           return _end(req, HttpStatus.internalServerError);
         }
-        log('whatsapp relay: 200 ${d.reason} ${keys.length} key(s)');
+        log(
+          'whatsapp relay: 200 ${d.reason} ${keys.length} key(s), '
+          '${items.length} entr${items.length == 1 ? 'y' : 'ies'}',
+        );
         return _end(req, HttpStatus.ok);
     }
   }
