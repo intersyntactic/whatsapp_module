@@ -11,7 +11,7 @@ environment:
   sdk: ^3.13.0
 
 dependencies:
-  checked_json: ^0.2.1
+  checked_json: ^0.3.0
   crypto: ^3.0.6
   is_effects: ^0.14.2
 

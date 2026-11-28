@@ -45,10 +45,10 @@ packages:
     dependency: "direct main"
     description:
       name: checked_json
-      sha256: "6e98ee4c293ee7ed5d1a76411823c7b43aee1fa969b63cb896c519814dbdcfbf"
+      sha256: "0538c8336bfcac44a0ee6f652205ec63bc53f05a5918ca628e4e5b005bbf6f28"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.1"
+    version: "0.3.0"
   cli_config:
     dependency: transitive
     description:
