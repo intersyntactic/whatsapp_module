@@ -48,7 +48,14 @@ void main() {
     expect(said.addressInExternalSystem.value, 'whatsapp:group:$groupId');
     expect(said.containingAddress, isNull);
     expect(said.addressedTo?.value, 'whatsapp:number:$ourPhoneId');
-    expect(said.replyEndpoint, isNull);
+    expect(said.conversationKind, ConversationKind.groupChat);
+    expect(
+      said.replyEndpoint,
+      whatsappReplyEndpoint(
+        from: PhoneNumberId.parse(ourPhoneId)!,
+        to: WhatsAppRecipient.group(GroupId.parse(groupId)!),
+      ),
+    );
     expect(said.key.value, 'wamid.A');
     expect(said.node.author.value, 'whatsapp:user:AU.1234567890123456789');
     expect(said.node.source.value, 'wamid.A');
@@ -66,6 +73,26 @@ void main() {
       said.addressInExternalSystem.value,
       'whatsapp:chat:$ourPhoneId:AU.1234567890123456789',
     );
+    expect(said.conversationKind, ConversationKind.oneToOne);
+    expect(
+      said.replyEndpoint,
+      whatsappReplyEndpoint(
+        from: PhoneNumberId.parse(ourPhoneId)!,
+        to: WhatsAppRecipient.person(WhatsAppPhoneNumber.parse('61400000000')!),
+      ),
+    );
+  });
+
+  test('a person with no phone number to reply to has no endpoint', () {
+    final said = saidOf(
+      run([
+        webhookBody([
+          textMessageChange(id: 'wamid.A', inGroup: false, from: null),
+        ]),
+      ]).single,
+    );
+    expect(said.conversationKind, ConversationKind.oneToOne);
+    expect(said.replyEndpoint, isNull);
   });
 
   test('a reply names who wrote what it quotes, once that was seen', () {

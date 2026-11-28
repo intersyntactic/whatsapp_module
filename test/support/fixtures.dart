@@ -33,7 +33,7 @@ Map<String, Object?> textMessageChange({
   String phoneId = ourPhoneId,
   String id = 'wamid.HBgLNjE0MDAwMDAwMDAVAgASGBQzQUFBQUFBQUFBQUFBQUFBQUFBQQA=',
   String text = 'hello',
-  String from = '61400000000',
+  String? from = '61400000000',
   String userId = 'AU.1234567890123456789',
   bool inGroup = true,
   String? replyTo,
@@ -51,7 +51,7 @@ Map<String, Object?> textMessageChange({
     ],
     'messages': [
       {
-        'from': from,
+        'from': ?from,
         'from_user_id': userId,
         'id': id,
         'timestamp': '1795000000',

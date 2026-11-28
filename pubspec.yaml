@@ -11,10 +11,10 @@ environment:
   sdk: ^3.13.0
 
 dependencies:
-  checked_json: ^0.3.0
+  checked_json: ^0.4.0
   crypto: ^3.0.6
-  is_conversation_vocabulary: ^0.1.1
-  is_docking_station_api: ^0.9.0
+  is_conversation_vocabulary: ^0.2.0
+  is_docking_station_api: ^0.10.0
   is_effects: ^0.14.2
   is_shapes: ^0.6.0
 

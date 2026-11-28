@@ -11,6 +11,8 @@ library;
 
 import 'dart:convert';
 
+import 'package:is_conversation_vocabulary/is_conversation_vocabulary.dart'
+    show PinnedBodyFields, RepliesWithPinnedBodyFields;
 import 'package:is_effects/is_effects.dart';
 
 import 'whatsapp_ids.dart';
@@ -36,17 +38,46 @@ ProposedRequest whatsappTextRequest({
 }) => ProposedRequest(
   _graph,
   method: Method.post,
-  path: WebPath.parse('/$graphVersion/${from.value}/messages')!,
+  path: _messagesPath(from),
   signIn: signIn,
   headers: const {'content-type': 'application/json; charset=utf-8'},
   body: jsonEncode({
-    'messaging_product': 'whatsapp',
-    'recipient_type': to._kind,
-    'to': to._id,
+    ..._chatFields(to),
     'type': 'text',
     'text': {'body': text.value},
   }),
 );
+
+/// Where replies in a chat with [to] go: [from]'s messages path, with a
+/// body naming exactly [to] and carrying nothing but a message besides.
+/// Any other top-level field is refused, so a way of naming a recipient
+/// Meta adds later, or `recipient` (a user id, which Meta ranks below
+/// `to`), can't send a reply elsewhere.
+RepliesWithPinnedBodyFields whatsappReplyEndpoint({
+  required PhoneNumberId from,
+  required WhatsAppRecipient to,
+}) => RepliesWithPinnedBodyFields.at(
+  origin: _graph,
+  path: _messagesPath(from),
+  pinned: PinnedBodyFields.allowingOnly(
+    _chatFields(to),
+    otherFields: _messageFields,
+  )!,
+)!;
+
+/// The fields a text message adds to [_chatFields]. A new kind of message
+/// adds its fields here, or its replies are refused.
+const _messageFields = {'type', 'text'};
+
+/// The fields that name the chat a message goes to.
+Map<String, String> _chatFields(WhatsAppRecipient to) => {
+  'messaging_product': 'whatsapp',
+  'recipient_type': to._kind,
+  'to': to._id,
+};
+
+WebPath _messagesPath(PhoneNumberId from) =>
+    WebPath.parse('/$graphVersion/${from.value}/messages')!;
 
 /// Who a message goes to: one person, or a group.
 sealed class WhatsAppRecipient {

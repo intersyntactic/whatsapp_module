@@ -130,4 +130,44 @@ void main() {
     expect(WhatsAppPhoneNumber.parse('+61 400 000 000'), isNull);
     expect(WhatsAppPhoneNumber.parse('12'), isNull);
   });
+
+  group('the reply endpoint', () {
+    final person = WhatsAppRecipient.person(
+      WhatsAppPhoneNumber.parse('61400000000')!,
+    );
+    final someoneElse = WhatsAppRecipient.person(
+      WhatsAppPhoneNumber.parse('61400000001')!,
+    );
+
+    bool admits(WhatsAppRecipient chat, ProposedRequest r) {
+      final endpoint = whatsappReplyEndpoint(from: phone, to: chat);
+      return endpoint.admitsAddress(r.origin, r.path) &&
+          endpoint.admitsBody(
+            contentType: r.headers['content-type']!,
+            body: r.body!,
+          );
+    }
+
+    test('admits what the send builds for its own chat', () {
+      expect(admits(theGroup, send(theGroup, 'hello')), isTrue);
+      expect(admits(person, send(person, 'hello')), isTrue);
+    });
+
+    test('refuses a send to another chat', () {
+      expect(admits(person, send(someoneElse, 'hello')), isFalse);
+      expect(admits(person, send(theGroup, 'hello')), isFalse);
+    });
+
+    test('refuses a body that also names a recipient by user id', () {
+      final endpoint = whatsappReplyEndpoint(from: phone, to: person);
+      final sent = JsonObject.decode(send(person, 'hello').body!);
+      expect(
+        endpoint.admitsBody(
+          contentType: 'application/json',
+          body: jsonEncode(sent.withFields({'recipient': 'AU.someone-else'})),
+        ),
+        isFalse,
+      );
+    });
+  });
 }
