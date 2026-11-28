@@ -153,6 +153,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  is_annotation_shapes:
+    dependency: transitive
+    description:
+      name: is_annotation_shapes
+      sha256: "620e2f3f5f78d1eeaae23b083f32160e6dec79d3959c2034b5bb4c0989e20c42"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0"
+  is_content_id:
+    dependency: transitive
+    description:
+      name: is_content_id
+      sha256: "40381247bf99e093eab9951d070ab2b416e526a9639ec85f80179ee26ef35e12"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
+  is_conversation_vocabulary:
+    dependency: "direct main"
+    description:
+      name: is_conversation_vocabulary
+      sha256: b252a0b7254cf40142c353cdb68e8d926b579021c27033922f3a624204b4c27f
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.1"
+  is_docking_station_api:
+    dependency: "direct main"
+    description:
+      name: is_docking_station_api
+      sha256: "1e79b9391322e40b0ae28d178bc20b059683ecbd1aa58005c68f254e66bc2ac9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.0"
   is_effects:
     dependency: "direct main"
     description:
@@ -161,6 +193,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.14.2"
+  is_logbook_format:
+    dependency: "direct dev"
+    description:
+      name: is_logbook_format
+      sha256: "5ec58c64f526653f1447d3cde7266d2d0b5d083fccaf0362f0de8effab611747"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   is_path_confinement:
     dependency: transitive
     description:
@@ -169,14 +209,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.0"
+  is_shapes:
+    dependency: "direct main"
+    description:
+      name: is_shapes
+      sha256: aa5d5f37840ab8a09517bcf7313418bdb6ffab2dea29b3ac06d2e95875f8c2e8
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.0"
   is_web_address_vocabulary:
     dependency: transitive
     description:
       name: is_web_address_vocabulary
-      sha256: "232241a06a2871213e110f52f01c8c68b6c98fdcdf00fcfb491c8e24d10d8dac"
+      sha256: a0b58425fc7eaf98e740cdfac614201fa426594fafdf198903e961f0ee4ed6dd
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.1.2"
   lints:
     dependency: "direct dev"
     description:

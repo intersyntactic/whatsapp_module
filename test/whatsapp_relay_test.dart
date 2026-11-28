@@ -109,10 +109,41 @@ void main() {
   });
 
   group('a delivery', () {
-    test('is recorded byte for byte, then answered 200', () async {
+    test('of one item is recorded as it came, then answered 200', () async {
       final body = webhookBody([textMessageChange()]);
       expect(await post(body, signature: metaSignature(body)), 200);
       expect(recorded.single, body);
+    });
+
+    test('of several items is recorded one entry each', () async {
+      final body = webhookBody([
+        textMessageChange(id: 'wamid.A'),
+        textMessageChange(id: 'wamid.B'),
+        statusChange(),
+      ]);
+      expect(await post(body, signature: metaSignature(body)), 200);
+      expect(recorded, hasLength(3));
+      expect(
+        [for (final r in recorded) WhatsAppDelivery.parse(r)!.messages.length],
+        [1, 1, 0],
+      );
+    });
+
+    test('recorded partway gets a 500, and its retry is taken whole', () {
+      final body = webhookBody([
+        textMessageChange(id: 'wamid.A'),
+        textMessageChange(id: 'wamid.B'),
+      ]);
+      var calls = 0;
+      nextAnswer = () => ++calls == 2
+          ? const RecordFailed('disk full')
+          : const Recorded('abc123');
+      return () async {
+        expect(await post(body, signature: metaSignature(body)), 500);
+        expect(recorded, hasLength(1));
+        expect(await post(body, signature: metaSignature(body)), 200);
+        expect(recorded, hasLength(3));
+      }();
     });
 
     test('with no signature is refused 403 and not recorded', () async {

@@ -36,6 +36,7 @@ Map<String, Object?> textMessageChange({
   String from = '61400000000',
   String userId = 'AU.1234567890123456789',
   bool inGroup = true,
+  String? replyTo,
 }) => {
   'field': 'messages',
   'value': {
@@ -57,6 +58,7 @@ Map<String, Object?> textMessageChange({
         'group_id': ?(inGroup ? groupId : null),
         'type': 'text',
         'text': {'body': text},
+        if (replyTo != null) 'context': {'id': replyTo},
       },
     ],
   },

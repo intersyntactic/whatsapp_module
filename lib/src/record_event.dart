@@ -2,7 +2,8 @@
 ///
 /// Nothing is decided about an event, so nothing stands between the relay
 /// and the writer. The writer knows the relay by the user at the other end
-/// of its socket, and its sender table must let that user send `event`.
+/// of its socket, and its sender table must let that user send
+/// `whatsapp-event`.
 ///
 /// The wire is the logbook writer's: one connection per entry, the request
 /// `<kind>\n<previous>\n<body>` with the write side then closed, and one
@@ -15,6 +16,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+
+import 'package:is_docking_station_api/is_docking_station_api.dart'
+    show RelayedEventSource, encodeRelayedEvent;
 
 /// What the writer said became of one event.
 sealed class RecordAnswer {
@@ -71,24 +75,22 @@ final class RecordUnanswered extends RecordAnswer {
   final String why;
 }
 
-/// Records [bytes] from [source] at the writer's [socketPath], as an
-/// `event` entry that starts its own chain. The entry holds
-/// `{"at", "source", "bytes"}`, the bytes base64 and exactly as they came,
-/// which is what the docking station's `RelayedEvent.read` takes. Meta
-/// wants an answer within seconds, so [timeout] stays short.
+/// Records [bytes] from [source] at the writer's [socketPath], as an entry
+/// of kind `<source>-event` that starts its own chain, written by the
+/// docking station's own [encodeRelayedEvent] so its `RelayedEvent.read`
+/// reads it back. Meta wants an answer within seconds, so [timeout] stays
+/// short.
 Future<RecordAnswer> recordEvent(
   String socketPath, {
-  required String source,
+  required RelayedEventSource source,
   required Uint8List bytes,
   DateTime? at,
   Duration timeout = const Duration(seconds: 5),
 }) async {
-  final entry = utf8.encode(
-    jsonEncode({
-      'at': (at ?? DateTime.now().toUtc()).toIso8601String(),
-      'source': source,
-      'bytes': base64Encode(bytes),
-    }),
+  final (kind, entry) = encodeRelayedEvent(
+    source,
+    at: at ?? DateTime.now().toUtc(),
+    bytes: bytes,
   );
   Socket? socket;
   try {
@@ -98,7 +100,7 @@ Future<RecordAnswer> recordEvent(
         0,
       );
       socket!
-        ..add(utf8.encode('event\n-\n'))
+        ..add(utf8.encode('${kind.name}\n-\n'))
         ..add(entry);
       // The writer reads the request to its end: closing the write side is
       // what tells it the request is whole.
