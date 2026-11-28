@@ -171,6 +171,18 @@ void main() {
       );
     });
 
+    test('refuses a signed body that names a key twice', () {
+      // Read last-wins, the second `object` would make this a webhook.
+      final body = utf8.encode(
+        '{"object": "page", '
+        '"object": "whatsapp_business_account", "entry": []}',
+      );
+      expect(
+        decide(body),
+        isA<DeliveryRefused>().having((r) => r.status, 'status', 400),
+      );
+    });
+
     group('repeats', () {
       test('drops a delivery whose every key was seen', () {
         final body = webhookBody([textMessageChange()]);
