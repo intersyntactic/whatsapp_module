@@ -13,7 +13,10 @@ import 'dart:convert';
 
 import 'package:is_conversation_vocabulary/is_conversation_vocabulary.dart'
     show PinnedBodyFields, RepliesWithPinnedBodyFields;
-import 'package:is_effects/is_effects.dart';
+import 'package:is_effects/is_effects.dart' show Method, ProposedRequest;
+import 'package:is_sign_in_vocabulary/is_sign_in_vocabulary.dart' show SignIn;
+import 'package:is_web_address_vocabulary/is_web_address_vocabulary.dart'
+    show Origin, PathPrefix, WebPath;
 
 import 'whatsapp_ids.dart';
 

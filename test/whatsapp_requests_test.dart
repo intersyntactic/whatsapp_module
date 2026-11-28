@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:checked_json/checked_json.dart';
 import 'package:is_effects/is_effects.dart';
+import 'package:is_sign_in_vocabulary/is_sign_in_vocabulary.dart';
+import 'package:is_web_address_vocabulary/is_web_address_vocabulary.dart';
 import 'package:is_whatsapp_module/is_whatsapp_module.dart';
 import 'package:test/test.dart';
 

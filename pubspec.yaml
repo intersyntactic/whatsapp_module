@@ -15,8 +15,10 @@ dependencies:
   crypto: ^3.0.6
   is_conversation_vocabulary: ^0.2.0
   is_docking_station_api: ^0.10.0
-  is_effects: ^0.14.2
+  is_effects: ^0.20.0
   is_shapes: ^0.6.0
+  is_sign_in_vocabulary: ^0.1.1
+  is_web_address_vocabulary: ^0.1.2
 
 dev_dependencies:
   is_logbook_format: ^0.1.0
