@@ -49,6 +49,7 @@ void main() {
     expect(said.containingAddress, isNull);
     expect(said.addressedTo?.value, 'whatsapp:number:$ourPhoneId');
     expect(said.conversationKind, ConversationKind.groupChat);
+    expect(said.forTheAgent, WhetherForTheAgent.notKnown);
     expect(
       said.replyEndpoint,
       whatsappReplyEndpoint(
@@ -74,6 +75,7 @@ void main() {
       'whatsapp:chat:$ourPhoneId:AU.1234567890123456789',
     );
     expect(said.conversationKind, ConversationKind.oneToOne);
+    expect(said.forTheAgent, WhetherForTheAgent.everyMessageHereIsForTheAgent);
     expect(
       said.replyEndpoint,
       whatsappReplyEndpoint(

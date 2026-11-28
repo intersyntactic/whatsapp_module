@@ -83,15 +83,20 @@ final class WhatsAppEventTranslator
     final author = whatsAppActor(from);
     final source = SourceMessageId.parse(m.id.value);
     final key = EventKey.parse(m.id.value);
-    final (address, kind, replyTo) = switch (m.group) {
+    final (address, kind, forTheAgent, replyTo) = switch (m.group) {
       final group? => (
         groupAddress(group),
         ConversationKind.groupChat,
+        // A group delivers everyone's messages, and Meta's group webhook
+        // carries no mentions, so whether this one is for the agent can't
+        // be read from it.
+        WhetherForTheAgent.notKnown,
         WhatsAppRecipient.group(group),
       ),
       null => (
         chatAddress(number, from),
         ConversationKind.oneToOne,
+        WhetherForTheAgent.everyMessageHereIsForTheAgent,
         switch (WhatsAppPhoneNumber.parse(m.fromPhone ?? '')) {
           final phone? => WhatsAppRecipient.person(phone),
           // Someone who hides their number behind a username: Meta takes
@@ -112,6 +117,7 @@ final class WhatsAppEventTranslator
         null => null,
       },
       conversationKind: kind,
+      forTheAgent: forTheAgent,
       key: key,
       node: UserSaid(
         author: author,
